@@ -52,15 +52,36 @@ router.delete("/:id", validateUserId, async (req, res, next) => {
   }
 });
 
-router.get("/:id/posts", validateUserId, (req, res) => {
+router.get("/:id/posts", validateUserId, async (req, res, next) => {
   // RETURN THE ARRAY OF USER POSTS
+  try {
+    const userPosts = await User.getUserPosts(req.params.id);
+    res.json(userPosts);
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.post("/:id/posts", validateUserId, validatePost, (req, res) => {
-  // RETURN THE NEWLY CREATED USER POST
-});
+router.post(
+  "/:id/posts",
+  validateUserId,
+  validatePost,
+  async (req, res, next) => {
+    // RETURN THE NEWLY CREATED USER POST
+    try {
+      const newPost = await Posts.insert({
+        user_id: req.params.id,
+        text: req.text,
+      });
+      res.status(201).json(newPost);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 router.use((error, req, res, next) => {
+  //eslint-disable-line
   res.status(error.status || 500).json({
     customMessage: "uh oh! something happened inside posts router",
     message: error.message,

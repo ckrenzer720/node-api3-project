@@ -81,7 +81,6 @@ router.post(
 );
 
 router.use((error, req, res, next) => {
-  //eslint-disable-line
   res.status(error.status || 500).json({
     customMessage: "uh oh! something happened inside posts router",
     message: error.message,
